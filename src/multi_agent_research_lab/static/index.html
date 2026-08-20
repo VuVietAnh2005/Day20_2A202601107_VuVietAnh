@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Multi-Agent Research Lab | Interactive Web Interface</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css">
+  <!-- Markdown Renderer -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+  <div class="app-background">
+    <div class="ambient-glow glow-1"></div>
+    <div class="ambient-glow glow-2"></div>
+  </div>
+
+  <header class="app-header">
+    <div class="header-container">
+      <div class="brand">
+        <div class="brand-icon">🤖</div>
+        <div>
+          <h1 class="brand-title">Multi-Agent Research System</h1>
+          <p class="brand-subtitle">Powered by LangGraph & OpenAI Orchestration</p>
+        </div>
+      </div>
+      <div class="header-badges">
+        <span class="badge badge-pulse">LangGraph v0.2</span>
+        <span class="badge badge-success">Production Ready</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-container">
+    <!-- Interactive Agent Visualizer -->
+    <section class="visualizer-section card">
+      <div class="section-header">
+        <h2>⚡ Live Agent Workflow Pipeline</h2>
+        <span id="pipeline-status" class="status-indicator">Ready to run</span>
+      </div>
+      
+      <div class="pipeline-grid">
+        <div class="agent-node" id="node-supervisor">
+          <div class="node-icon">👑</div>
+          <div class="node-title">Supervisor</div>
+          <div class="node-desc">Routing & Guardrails</div>
+          <div class="node-status" id="status-supervisor">Standby</div>
+        </div>
+
+        <div class="pipeline-connector">➔</div>
+
+        <div class="agent-node" id="node-researcher">
+          <div class="node-icon">🔍</div>
+          <div class="node-title">Researcher</div>
+          <div class="node-desc">Search & Extraction</div>
+          <div class="node-status" id="status-researcher">Standby</div>
+        </div>
+
+        <div class="pipeline-connector">➔</div>
+
+        <div class="agent-node" id="node-analyst">
+          <div class="node-icon">🧠</div>
+          <div class="node-title">Analyst</div>
+          <div class="node-desc">Tradeoffs & Critique</div>
+          <div class="node-status" id="status-analyst">Standby</div>
+        </div>
+
+        <div class="pipeline-connector">➔</div>
+
+        <div class="agent-node" id="node-writer">
+          <div class="node-icon">✍️</div>
+          <div class="node-title">Writer</div>
+          <div class="node-desc">Report & Citations</div>
+          <div class="node-status" id="status-writer">Standby</div>
+        </div>
+
+        <div class="pipeline-connector">➔</div>
+
+        <div class="agent-node" id="node-critic">
+          <div class="node-icon">🛡️</div>
+          <div class="node-title">Critic</div>
+          <div class="node-desc">Fact & Citation Check</div>
+          <div class="node-status" id="status-critic">Standby</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Query Input Controls -->
+    <section class="control-section card">
+      <form id="research-form">
+        <label for="query-input" class="input-label">Câu hỏi nghiên cứu (Research Query)</label>
+        <div class="input-wrapper">
+          <input 
+            type="text" 
+            id="query-input" 
+            placeholder="Nhập chủ đề cần nghiên cứu (ví dụ: Research GraphRAG state-of-the-art...)" 
+            value="Research GraphRAG state-of-the-art and write a 500-word summary"
+            required
+          />
+        </div>
+
+        <!-- Quick suggestion chips -->
+        <div class="suggestions-container">
+          <span class="suggestion-label">Gợi ý nhanh:</span>
+          <button type="button" class="chip" data-query="Research GraphRAG state-of-the-art and write a 500-word summary">GraphRAG SOTA</button>
+          <button type="button" class="chip" data-query="Summarize production guardrails for LLM agents">LLM Guardrails</button>
+          <button type="button" class="chip" data-query="Compare single-agent and multi-agent workflows for customer support">Support Multi-Agent</button>
+          <button type="button" class="chip" data-query="So sánh RAG và fine-tuning cho domain adaptation">RAG vs Fine-tuning</button>
+        </div>
+
+        <div class="form-actions">
+          <div class="mode-selector">
+            <label class="radio-label">
+              <input type="radio" name="mode" value="multi-agent" checked>
+              <span class="radio-custom"></span>
+              <span class="mode-text"><strong>Multi-Agent Workflow</strong> (Khuyến nghị)</span>
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="mode" value="baseline">
+              <span class="radio-custom"></span>
+              <span class="mode-text"><strong>Single-Agent Baseline</strong> (1 Call)</span>
+            </label>
+          </div>
+
+          <div class="btn-group">
+            <button type="button" id="btn-benchmark" class="btn btn-secondary">
+              <span>📊 Chạy Benchmark</span>
+            </button>
+            <button type="submit" id="btn-run" class="btn btn-primary">
+              <span id="btn-run-text">🚀 Bắt đầu Nghiên cứu</span>
+              <div id="btn-spinner" class="spinner hidden"></div>
+            </button>
+          </div>
+        </div>
+      </form>
+    </section>
+
+    <!-- Metrics Bar -->
+    <section id="metrics-bar" class="metrics-grid hidden">
+      <div class="metric-card">
+        <div class="metric-label">Thời gian (Latency)</div>
+        <div class="metric-value" id="metric-latency">--</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Số vòng lặp (Iterations)</div>
+        <div class="metric-value" id="metric-iterations">--</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Nguồn thu thập (Sources)</div>
+        <div class="metric-value" id="metric-sources">--</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Lộ trình điều phối</div>
+        <div class="metric-value text-sm" id="metric-routes">--</div>
+      </div>
+    </section>
+
+    <!-- Results Display Tabs -->
+    <section id="results-section" class="card results-card hidden">
+      <div class="tabs-header">
+        <button class="tab-btn active" data-tab="tab-answer">📝 Báo cáo tổng hợp (Final Answer)</button>
+        <button class="tab-btn" data-tab="tab-sources">🔍 Nguồn tài liệu (<span id="source-count-badge">0</span>)</button>
+        <button class="tab-btn" data-tab="tab-workspace">🧠 Không gian Agent (Notes)</button>
+        <button class="tab-btn" data-tab="tab-trace">⏱️ Lịch sử Trace</button>
+      </div>
+
+      <div class="tab-content">
+        <!-- Tab 1: Final Answer -->
+        <div id="tab-answer" class="tab-pane active">
+          <div id="final-answer-body" class="markdown-body"></div>
+        </div>
+
+        <!-- Tab 2: Sources -->
+        <div id="tab-sources" class="tab-pane">
+          <div id="sources-container" class="sources-list"></div>
+        </div>
+
+        <!-- Tab 3: Agent Workspace -->
+        <div id="tab-workspace" class="tab-pane">
+          <div class="workspace-grid">
+            <div class="workspace-card">
+              <h3>🔍 Researcher Notes</h3>
+              <div id="researcher-notes-body" class="markdown-body text-sm"></div>
+            </div>
+            <div class="workspace-card">
+              <h3>🧠 Analyst Tradeoffs & Critique</h3>
+              <div id="analyst-notes-body" class="markdown-body text-sm"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 4: Trace Timeline -->
+        <div id="tab-trace" class="tab-pane">
+          <div id="trace-container" class="timeline"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Benchmark Comparison Modal / Card -->
+    <section id="benchmark-section" class="card benchmark-card hidden">
+      <div class="section-header">
+        <h2>📊 Bảng so sánh định lượng: Single-Agent vs Multi-Agent</h2>
+        <button id="close-benchmark-btn" class="close-btn">&times;</button>
+      </div>
+      <div class="benchmark-content">
+        <div class="table-responsive">
+          <table class="benchmark-table">
+            <thead>
+              <tr>
+                <th>Hệ thống</th>
+                <th>Độ trễ (Latency)</th>
+                <th>Chi phí (Cost)</th>
+                <th>Điểm chất lượng (0-10)</th>
+                <th>Độ phủ trích dẫn</th>
+                <th>Tỷ lệ lỗi</th>
+              </tr>
+            </thead>
+            <tbody id="benchmark-table-body"></tbody>
+          </table>
+        </div>
+        <div class="benchmark-summary">
+          <h4>💡 Đánh giá & Rút ra từ Benchmark:</h4>
+          <p><strong>Single-Agent:</strong> Tốc độ cao hơn nhưng dễ bị hallucination và không có trích dẫn nguồn kiểm chứng.</p>
+          <p><strong>Multi-Agent:</strong> Tách biệt khâu nghiên cứu $\rightarrow$ phân tích $\rightarrow$ viết bài giúp nội dung học thuật vượt trội, đạt 100% trích dẫn nguồn.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="app-footer">
+    <p>Lab 20: Multi-Agent Research System | Built with LangGraph, FastAPI & Vanilla CSS</p>
+  </footer>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
